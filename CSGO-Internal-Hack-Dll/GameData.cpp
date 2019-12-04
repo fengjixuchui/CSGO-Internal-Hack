@@ -25,7 +25,7 @@
 #include "GameData.h"
 
 // Dev Version
-const std::wstring devVersion = L"0.8a";
+const std::wstring devVersion = L"0.9a";
 
 // Target process id
 DWORD targetPID;
@@ -77,12 +77,12 @@ int triggerDelay = 2;
 size_t nearestEnemy;
 int validTargetNum;
 
-float aimLockFov = 22;
+float aimLockFov = 7.5;	
 float aimLockHorizontalSensitivity = 0.65;
 float aimLockVerticalSensitivity = 0.35;
 float aimLockDistanceSensitivity = 0.5;
 int aimLockDistanceBase = 10;
-float aimLockSmooth = 0.15;
+float aimLockSmooth = 0.08;
 
 int aimLockParts = 7;
 std::map<std::string, int> bones;

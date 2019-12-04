@@ -27,6 +27,7 @@
 #include <chrono>
 #include <thread>
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <algorithm>
 #include <set>
@@ -50,6 +51,11 @@
 #include <Indicium/Engine/IndiciumDirect3D9.h>
 #include <Indicium/Engine/IndiciumDirect3D10.h>
 #include <Indicium/Engine/IndiciumDirect3D11.h>
+
+#include "..//include/rapidjson/rapidjson.h"
+#include "..//include/rapidjson/document.h"
+#include "..//include/rapidjson/writer.h"
+#include "..//include/rapidjson/stringbuffer.h"
 
 #include <d3d9.h>
 
@@ -83,7 +89,6 @@ TOGGLE_STATE(int key, bool& toggle)
 	if (!pressedPast && pressedNow)
 	{
 		toggle = !toggle;
-
 		pressedPast = true;
 	}
 }
@@ -135,7 +140,7 @@ void GameDataInit(void)
 	for (size_t i = 0; i < 256; i++)
 		glowObjects.push_back(std::make_unique<GlowObject>());
 
-	std::ifstream skinIDFile("C:\\Users\\sun11\\Desktop\\SkinID.csv");
+	std::ifstream skinIDFile("..//CSGOHack//SkinID.csv");
 	std::string line;
 	std::string weaponName;
 
@@ -147,11 +152,11 @@ void GameDataInit(void)
 		std::vector<std::string> tempCSVData;
 		tempCSVData = Util::StringManipulation::SplitString(line, ",");
 
-		if (weapons.find(tempCSVData.at(1))== weapons.end())// 不存在则添加
+		if (weapons.find(tempCSVData.at(1)) == weapons.end())// 不存在则添加
 		{
 			weapons.emplace(tempCSVData.at(1), std::vector<std::string>());
 		}
-		
+
 		weapons.at(tempCSVData.at(1)).push_back(tempCSVData.at(2));
 
 		skins.emplace(tempCSVData.at(2), std::atoi(tempCSVData.at(3).c_str()));
@@ -172,6 +177,21 @@ void GameDataInit(void)
 		bones.emplace("RHand", BoneID::RHand);
 		bones.emplace("RNee", BoneID::RNee);
 		bones.emplace("RFoot", BoneID::RFoot);
+	}
+
+	if (false)
+	{
+		std::ifstream file;
+		file.open("csgo.json");
+		file.seekg(0, std::ios::end);  
+		int length = file.tellg();         
+		file.seekg(0, std::ios::beg);   
+		char* buffer = new char[length];   
+		file.read(buffer, length);  
+		file.close();
+
+		rapidjson::Document document;
+		document.Parse(buffer);
 	}
 }
 
@@ -411,9 +431,13 @@ void ShowGlowObjectInfo(void)
 		ss << "  Occluded : " << (glowObjects.at(i)->m_bRenderWhenOccluded ? "True" : "False");
 		ImGui::Text(ss.str().c_str());
 		ss.str("");
-
+		
 		ImGui::SameLine();
 		ss << "  Unoccluded : " << (glowObjects.at(i)->m_bRenderWhenUnoccluded ? "True" : "False");
+		ImGui::Text(ss.str().c_str());
+		ss.str("");
+
+		ss << "  Glow ID : " << (glowObjects.at(i)->padding1[0]);
 		ImGui::Text(ss.str().c_str());
 		ss.str("");
 	}
@@ -478,7 +502,7 @@ void ShowMainWindow(void)
 		ImGui::Checkbox("F2 - TriggerBot", &FunctionEnableFlag::bTriggerBot);
 		ImGui::SameLine(); HelpMarker("Automatically trigger(fire) your weapon if your crosshair is pointing to an enemy.");
 		ImGui::Checkbox("F3 - AimBot", &FunctionEnableFlag::bAimBot);
-		ImGui::SameLine(); HelpMarker("Aim assistant such as:\n   - FOV-snap\n   - Head Lock\n   - Anti-recoil");
+		ImGui::SameLine(); HelpMarker("Aim assistant.");
 		ImGui::Checkbox("F4 - Glow", &FunctionEnableFlag::bGlow);
 		ImGui::SameLine(); HelpMarker("All the entities in game will glow in X-ray style.");
 		ImGui::Checkbox("F5 - RCS", &FunctionEnableFlag::bRCS);
@@ -685,39 +709,39 @@ void ShowMainWindow(void)
 		}
 	}
 
-	if (ImGui::CollapsingHeader("Debug"))
-	{
-		ImGui::Separator();
-		ImGui::Checkbox("  Read LocalPlayer Info", &FunctionEnableFlag::bReadLocalPlayerInfo);
-		ImGui::Checkbox("  Read OtherPlayer Info", &FunctionEnableFlag::bReadOtherPlayerInfo);
-		ImGui::Checkbox("  Read Skin Info", &FunctionEnableFlag::bReadSkinInfo);
-		ImGui::Checkbox("  Read Glow Object Info", &FunctionEnableFlag::bReadGlowObjectInfo);
+	//if (ImGui::CollapsingHeader("Debug"))
+	//{
+	//	ImGui::Separator();
+	//	ImGui::Checkbox("  Read LocalPlayer Info", &FunctionEnableFlag::bReadLocalPlayerInfo);
+	//	ImGui::Checkbox("  Read OtherPlayer Info", &FunctionEnableFlag::bReadOtherPlayerInfo);
+	//	ImGui::Checkbox("  Read Skin Info", &FunctionEnableFlag::bReadSkinInfo);
+	//	ImGui::Checkbox("  Read Glow Object Info", &FunctionEnableFlag::bReadGlowObjectInfo);
 
-		ImGui::Checkbox("  Show Aim Info", &FunctionEnableFlag::bShowAimInfo);
-		ImGui::Checkbox("  Show LocalPlayer Info", &FunctionEnableFlag::bShowLocalPlayerInfo);
-		ImGui::Checkbox("  Show OtherPlayer Info", &FunctionEnableFlag::bShowOtherPlayerInfo);
-		ImGui::Checkbox("  Show Skin Info", &FunctionEnableFlag::bShowSkinInfo);
-		ImGui::Checkbox("  Show Glow Object Info", &FunctionEnableFlag::bShowGlowObjectInfo);
+	//	ImGui::Checkbox("  Show Aim Info", &FunctionEnableFlag::bShowAimInfo);
+	//	ImGui::Checkbox("  Show LocalPlayer Info", &FunctionEnableFlag::bShowLocalPlayerInfo);
+	//	ImGui::Checkbox("  Show OtherPlayer Info", &FunctionEnableFlag::bShowOtherPlayerInfo);
+	//	ImGui::Checkbox("  Show Skin Info", &FunctionEnableFlag::bShowSkinInfo);
+	//	ImGui::Checkbox("  Show Glow Object Info", &FunctionEnableFlag::bShowGlowObjectInfo);
 
-		ImGui::Separator();
-		if (ImGui::Button("SkinChanger Test")) { SkinChangerB(); }
-		ImGui::SameLine();
-		if (ImGui::Button("ForceFullUpdate")) { ForceFullUpdate(); }
-		ImGui::SameLine();
-		if (ImGui::Button("GlowOnce Test")) { GlowB(); }
-		ImGui::Separator();
+	//	ImGui::Separator();
+	//	if (ImGui::Button("SkinChanger Test")) { SkinChangerB(); }
+	//	ImGui::SameLine();
+	//	if (ImGui::Button("ForceFullUpdate")) { ForceFullUpdate(); }
+	//	ImGui::SameLine();
+	//	if (ImGui::Button("GlowOnce Test")) { GlowB(); }
+	//	ImGui::Separator();
 
-		if (FunctionEnableFlag::bShowLocalPlayerInfo)
-			ShowLocalPlayerInfo();
-		if (FunctionEnableFlag::bShowOtherPlayerInfo)
-			ShowOtherPlayerInfo();
-		if (FunctionEnableFlag::bShowSkinInfo)
-			ShowSkinInfo();
-		if (FunctionEnableFlag::bShowGlowObjectInfo)
-			ShowGlowObjectInfo();
-		if (FunctionEnableFlag::bShowAimInfo)
-			ShowAimInfo();
-	}
+	//	if (FunctionEnableFlag::bShowLocalPlayerInfo)
+	//		ShowLocalPlayerInfo();
+	//	if (FunctionEnableFlag::bShowOtherPlayerInfo)
+	//		ShowOtherPlayerInfo();
+	//	if (FunctionEnableFlag::bShowSkinInfo)
+	//		ShowSkinInfo();
+	//	if (FunctionEnableFlag::bShowGlowObjectInfo)
+	//		ShowGlowObjectInfo();
+	//	if (FunctionEnableFlag::bShowAimInfo)
+	//		ShowAimInfo();
+	//}
 	ImGui::End();
 }
 
